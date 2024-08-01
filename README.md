@@ -20,7 +20,7 @@ Latest version [![](https://jitpack.io/v/tamimattafi/pay-cards-android.svg)](htt
 
 ```gradle
 dependencies {
-    implementation 'com.github.tamimattafi:pay-cards-android:$version'
+    implementation 'com.github.mohammedzizou:CreditCardScannerAndroid:$version'
 }
 ```
 
