@@ -4,10 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.core.view.ViewCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -25,18 +24,16 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        Log.d(TAG, "onCreate called");
 
-        getDelegate().onPostCreate(null);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         if (savedInstanceState == null) {
             RecognitionAvailabilityChecker.Result checkResult = RecognitionAvailabilityChecker.doCheck(this);
-            if (checkResult.isFailed()
-                    && !checkResult.isFailedOnCameraPermission()) {
+            if (checkResult.isFailed() && !checkResult.isFailedOnCameraPermission()) {
                 onScanCardFailed(new RecognitionUnavailableException(checkResult.getMessage()));
             } else {
-                if (RecognitionCoreUtils.isRecognitionCoreDeployRequired(this)
-                        || checkResult.isFailedOnCameraPermission()) {
+                if (RecognitionCoreUtils.isRecognitionCoreDeployRequired(this) || checkResult.isFailedOnCameraPermission()) {
                     showInitLibrary();
                 } else {
                     showScanCard();
@@ -55,7 +52,6 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
 
     private void showScanCard() {
         Fragment fragment = new ScanCardFragment();
-
         Bundle args = new Bundle(1);
         args.putParcelable(ScanCardIntent.KEY_SCAN_CARD_REQUEST, getScanRequest());
         fragment.setArguments(args);
@@ -63,12 +59,10 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
                 .replace(android.R.id.content, fragment, ScanCardFragment.TAG)
                 .setCustomAnimations(0, 0)
                 .commitNow();
-
         ViewCompat.requestApplyInsets(findViewById(android.R.id.content));
     }
 
     @Override
-    
     public void onScanCardFailed(Exception e) {
         Log.e(TAG, "Scan card failed", new RuntimeException("onScanCardFinishedWithError()", e));
         setResult(ScanCardIntent.RESULT_CODE_ERROR);
@@ -76,7 +70,6 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
     }
 
     @Override
-    
     public void onScanCardFinished(Card card, @Nullable byte[] cardImage) {
         Intent intent = new Intent();
         intent.putExtra(ScanCardIntent.RESULT_PAYCARDS_CARD, (Parcelable) card);
@@ -101,7 +94,6 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
     }
 
     @Override
-    
     public void onInitLibraryComplete() {
         if (isFinishing()) return;
         showScanCard();
@@ -113,5 +105,18 @@ public class ScanCardActivity extends AppCompatActivity implements ScanCardFragm
             request = ScanCardRequest.getDefault();
         }
         return request;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause called, finishing activity");
+        finish();  // Ensure the activity is completely destroyed when it goes into the background
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy called");
     }
 }
