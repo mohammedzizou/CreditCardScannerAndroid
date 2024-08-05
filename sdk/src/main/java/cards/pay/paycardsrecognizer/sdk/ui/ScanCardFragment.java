@@ -232,15 +232,17 @@ public class ScanCardFragment extends Fragment {
 //        var metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(requireActivity()).getBounds();
 //        var screenAspectRatio = aspectRatio(metrics.width(), metrics.height());
 
-        var metrics = new DisplayMetrics();
+        DisplayMetrics metrics = new DisplayMetrics();
         requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        var screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels);
+        int screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels);
+
+
 
 
         @SuppressLint("RestrictedApi") Preview preview = new Preview.Builder()
-                .setTargetAspectRatio(screenAspectRatio)
-                .setTargetRotation(mCameraPreview.getDisplay().getRotation())
-                .build();
+        .setTargetAspectRatio(screenAspectRatio)
+        .setTargetRotation(mCameraPreview.getDisplay() != null ? mCameraPreview.getDisplay().getRotation() : Surface.ROTATION_0)  // Check for null Display object
+        .build();
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
